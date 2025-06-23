@@ -61,6 +61,34 @@ body {
     animation: pulse 2s infinite;
 }
 
+.settings-btn {
+    background: rgba(52, 152, 219, 0.2);
+    color: #3498db;
+    border: 1px solid rgba(52, 152, 219, 0.3);
+    padding: 0.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin-left: 0.5rem;
+}
+
+.settings-btn:hover {
+    background: #3498db;
+    color: white;
+    border-color: #3498db;
+    transform: rotate(90deg);
+}
+
+.settings-btn i {
+    transition: transform 0.3s ease;
+}
+
 @keyframes pulse {
     0% { opacity: 1; }
     50% { opacity: 0.7; }
@@ -1338,6 +1366,250 @@ td {
     padding: 2rem;
 }
 
+/* Settings Modal Styles */
+.settings-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.settings-section:last-of-type {
+    border-bottom: none;
+    margin-bottom: 1rem;
+}
+
+.settings-section h4 {
+    color: #3498db;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.setting-item {
+    margin-bottom: 1rem;
+}
+
+.setting-item label {
+    display: block;
+    color: #ecf0f1;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.setting-item select {
+    width: 100%;
+    padding: 0.8rem;
+    background: rgba(52, 73, 94, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: #ecf0f1;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.setting-item select:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.setting-description {
+    color: #95a5a6;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    font-style: italic;
+}
+
+.theme-toggle-container {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.theme-toggle {
+    background: rgba(52, 73, 94, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 25px;
+    padding: 0.3rem;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    width: 200px;
+}
+
+.theme-option {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    color: #95a5a6;
+}
+
+.theme-option.active {
+    background: #3498db;
+    color: white;
+    box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
+}
+
+.theme-option i {
+    font-size: 0.9rem;
+}
+
+.status-info {
+    background: rgba(52, 73, 94, 0.3);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid #3498db;
+}
+
+.status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.8rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.status-row:last-child {
+    margin-bottom: 0;
+    border-bottom: none;
+}
+
+.status-row .status-label {
+    color: #bdc3c7;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.status-row .status-value {
+    color: #ecf0f1;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.settings-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+button.settings-btn.primary {
+    background: #3498db !important;
+    color: white !important;
+    border: none !important;
+    padding: 0.8rem 1.5rem !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    font-size: 0.9rem !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    display: inline-block !important;
+}
+
+button.settings-btn.primary:hover {
+    background: #2980b9 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3) !important;
+}
+
+button.settings-btn.secondary {
+    background: transparent !important;
+    color: #95a5a6 !important;
+    border: 1px solid rgba(149, 165, 166, 0.3) !important;
+    padding: 0.8rem 1.5rem !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
+    font-size: 0.9rem !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    display: inline-block !important;
+}
+
+button.settings-btn.secondary:hover {
+    color: #ecf0f1 !important;
+    border-color: #ecf0f1 !important;
+    background: rgba(236, 240, 241, 0.1) !important;
+}
+
+/* Light Theme Styles */
+body.light-theme {
+    background: linear-gradient(135deg, #ecf0f1 0%, #bdc3c7 100%);
+    color: #2c3e50;
+}
+
+body.light-theme .dashboard {
+    background: transparent;
+}
+
+body.light-theme .header {
+    background: linear-gradient(90deg, #3498db 0%, #2980b9 100%);
+    color: white;
+}
+
+body.light-theme .main-content {
+    background: transparent;
+}
+
+body.light-theme .stat-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    color: #2c3e50;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme .chart-container {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    color: #2c3e50;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme .table-container {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    color: #2c3e50;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme .system-status {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    color: #2c3e50;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme .footer {
+    background: linear-gradient(90deg, #3498db 0%, #2980b9 100%);
+    color: white;
+}
+
+body.light-theme .modal-content {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    color: #2c3e50;
+}
+
+body.light-theme .news-ticker-container {
+    background: linear-gradient(90deg, #e74c3c 0%, #c0392b 100%);
+}
+
 /* Responsive Footer */
 @media (max-width: 768px) {
     .footer-content {
@@ -1353,5 +1625,13 @@ td {
     
     .footer-right {
         font-size: 0.8rem;
+    }
+    
+    .settings-actions {
+        flex-direction: column;
+    }
+    
+    .theme-toggle {
+        width: 100%;
     }
 }

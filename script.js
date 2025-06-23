@@ -86,6 +86,22 @@ class SOCDashboard {
                 this.openModal(modalId);
             });
         });
+
+        // Settings button triggers
+        document.querySelectorAll('.settings-btn[data-modal]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const modalId = e.currentTarget.dataset.modal;
+                this.openModal(modalId);
+            });
+        });
+
+        // Theme toggle functionality
+        document.getElementById('theme-toggle')?.addEventListener('click', () => {
+            this.toggleTheme();
+        });
+
+        // Load saved settings
+        this.loadSettings();
     }
 
     async loadAllData(includeCharts = false) {
@@ -1946,3 +1962,178 @@ document.addEventListener('visibilitychange', () => {
         }
     }
 });
+
+// Settings Functions (attached to SOCDashboard class)
+SOCDashboard.prototype.loadSettings = function() {
+    // Load saved settings from localStorage
+    const savedInterval = localStorage.getItem('soc-refresh-interval');
+    const savedTheme = localStorage.getItem('soc-theme');
+    
+    if (savedInterval) {
+        this.updateInterval = parseInt(savedInterval);
+        const select = document.getElementById('refresh-interval');
+        if (select) select.value = savedInterval;
+    }
+    
+    if (savedTheme) {
+        this.applyTheme(savedTheme);
+        this.updateThemeToggle(savedTheme);
+    }
+    
+    this.updateSettingsStatus();
+};
+
+SOCDashboard.prototype.applySettings = function() {
+    const refreshSelect = document.getElementById('refresh-interval');
+    if (refreshSelect) {
+        const newInterval = parseInt(refreshSelect.value);
+        this.updateInterval = newInterval;
+        localStorage.setItem('soc-refresh-interval', newInterval);
+        
+        // Restart auto-refresh with new interval
+        this.startAutoRefresh();
+    }
+    
+    this.updateSettingsStatus();
+    this.closeModal('settings-modal');
+    
+    // Show confirmation
+    this.showNotification('Settings saved successfully!');
+};
+
+SOCDashboard.prototype.resetSettings = function() {
+    // Reset to defaults
+    this.updateInterval = 30000;
+    localStorage.removeItem('soc-refresh-interval');
+    localStorage.removeItem('soc-theme');
+    
+    // Update UI
+    const refreshSelect = document.getElementById('refresh-interval');
+    if (refreshSelect) refreshSelect.value = '30000';
+    
+    this.applyTheme('dark');
+    this.updateThemeToggle('dark');
+    this.updateSettingsStatus();
+    
+    // Restart auto-refresh
+    this.startAutoRefresh();
+    
+    this.showNotification('Settings reset to defaults!');
+};
+
+SOCDashboard.prototype.toggleTheme = function() {
+    const currentTheme = document.body.classList.contains('light-theme') ? 'light' : 'dark';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    this.applyTheme(newTheme);
+    this.updateThemeToggle(newTheme);
+    localStorage.setItem('soc-theme', newTheme);
+    this.updateSettingsStatus();
+};
+
+SOCDashboard.prototype.applyTheme = function(theme) {
+    if (theme === 'light') {
+        document.body.classList.add('light-theme');
+    } else {
+        document.body.classList.remove('light-theme');
+    }
+};
+
+SOCDashboard.prototype.updateThemeToggle = function(theme) {
+    const toggle = document.getElementById('theme-toggle');
+    const lightOption = toggle?.querySelector('.light-option');
+    const darkOption = toggle?.querySelector('.dark-option');
+    
+    if (lightOption && darkOption) {
+        lightOption.classList.toggle('active', theme === 'light');
+        darkOption.classList.toggle('active', theme === 'dark');
+        
+        toggle.className = `theme-toggle ${theme}-theme`;
+    }
+};
+
+SOCDashboard.prototype.updateSettingsStatus = function() {
+    // Update current status display
+    const currentRefresh = document.getElementById('current-refresh');
+    const currentTheme = document.getElementById('current-theme');
+    const lastUpdate = document.getElementById('last-update');
+    
+    if (currentRefresh) {
+        if (this.updateInterval === 0) {
+            currentRefresh.textContent = 'Disabled';
+        } else {
+            const seconds = this.updateInterval / 1000;
+            currentRefresh.textContent = seconds < 60 ? `${seconds} seconds` : `${Math.round(seconds/60)} minutes`;
+        }
+    }
+    
+    if (currentTheme) {
+        const theme = document.body.classList.contains('light-theme') ? 'Light Mode' : 'Dark Mode';
+        currentTheme.textContent = theme;
+    }
+    
+    if (lastUpdate && this.lastUpdateTime) {
+        lastUpdate.textContent = this.lastUpdateTime;
+    }
+};
+
+SOCDashboard.prototype.showNotification = function(message) {
+    // Create a simple notification
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #27ae60;
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 6px;
+        z-index: 10000;
+        font-weight: 500;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        animation: slideIn 0.3s ease;
+    `;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+};
+
+// Override startAutoRefresh to handle dynamic intervals
+SOCDashboard.prototype.startAutoRefresh = function() {
+    // Clear existing intervals
+    if (this.refreshTimer) clearInterval(this.refreshTimer);
+    if (this.clockTimer) clearInterval(this.clockTimer);
+    
+    // Only start auto-refresh if interval > 0
+    if (this.updateInterval > 0) {
+        this.refreshTimer = setInterval(() => {
+            this.updateDateTime();
+            this.loadAllData();
+        }, this.updateInterval);
+    }
+    
+    // Always update datetime every second
+    this.clockTimer = setInterval(() => {
+        this.updateDateTime();
+    }, 1000);
+};
+
+// Add CSS for animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
