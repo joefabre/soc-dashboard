@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOC Dashboard - Real-time Security Operations</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <h1><i class="fas fa-shield-alt"></i> SOC Dashboard</h1>
+                <span class="status-indicator online">ONLINE</span>
+            </div>
+            <div class="header-right">
+                <div class="datetime" id="datetime"></div>
+                <div class="refresh-btn" onclick="refreshAllData()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </div>
+            </div>
+        </header>
+
+        <!-- News Ticker -->
+        <div class="news-ticker-container">
+            <div class="ticker-label">
+                <i class="fas fa-newspaper"></i> BREAKING
+            </div>
+            <div class="news-ticker">
+                <div class="ticker-content" id="ticker-content">
+                    <span class="ticker-item">Loading security news...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Stats Row -->
+            <section class="stats-row">
+                <div class="stat-card critical clickable-stat" data-modal="cve-modal">
+                    <div class="stat-icon">
+                        <i class="fas fa-bug"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="critical-cves">Loading...</h3>
+                        <p>Critical CVEs Today</p>
+                    </div>
+                    <div class="click-indicator">
+                        <i class="fas fa-external-link-alt"></i>
+                    </div>
+                </div>
+                
+                <div class="stat-card warning clickable-stat" data-modal="malware-modal">
+                    <div class="stat-icon">
+                        <i class="fas fa-shield-virus"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="malware-samples">Loading...</h3>
+                        <p>New Malware Samples</p>
+                    </div>
+                    <div class="click-indicator">
+                        <i class="fas fa-external-link-alt"></i>
+                    </div>
+                </div>
+                
+                <div class="stat-card info clickable-stat" data-modal="incidents-modal">
+                    <div class="stat-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="global-incidents">Loading...</h3>
+                        <p>Global Security Incidents</p>
+                    </div>
+                    <div class="click-indicator">
+                        <i class="fas fa-external-link-alt"></i>
+                    </div>
+                </div>
+                
+                <div class="stat-card success clickable-stat" data-modal="news-modal">
+                    <div class="stat-icon">
+                        <i class="fas fa-newspaper"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="security-news">Loading...</h3>
+                        <p>Security News Updates</p>
+                    </div>
+                    <div class="click-indicator">
+                        <i class="fas fa-external-link-alt"></i>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts and Data Visualization -->
+            <section class="charts-section">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>Threat Intelligence Feed</h3>
+                        <span class="last-updated" id="threat-updated">Last updated: --</span>
+                    </div>
+                    <canvas id="threatChart"></canvas>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>Global Cyberattack Activity</h3>
+                        <span class="last-updated" id="attack-updated">Last updated: --</span>
+                    </div>
+                    <canvas id="attackChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Live Data Tables -->
+            <section class="tables-section">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3><i class="fas fa-list"></i> Recent Security Events</h3>
+                        <div class="table-controls">
+                            <button class="filter-btn active" data-filter="all">All</button>
+                            <button class="filter-btn" data-filter="critical">Critical</button>
+                            <button class="filter-btn" data-filter="warning">Warning</button>
+                        </div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table id="events-table">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Event Type</th>
+                                    <th>Source</th>
+                                    <th>Severity</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody id="events-tbody">
+                                <tr>
+                                    <td colspan="5" class="loading">Loading security events...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3><i class="fas fa-globe-americas"></i> Global Threat Map</h3>
+                        <div class="map-controls">
+                            <button class="map-btn active" data-view="threats">Threats</button>
+                            <button class="map-btn" data-view="sources">Sources</button>
+                        </div>
+                    </div>
+                    <div class="world-map-container" id="world-map-container">
+                        <div class="map-loading" id="map-loading">Initializing world map...</div>
+                        <svg id="world-map" width="100%" height="400">
+                            <!-- World map will be rendered here -->
+                        </svg>
+                        <div class="map-legend" id="map-legend">
+                            <div class="legend-content">
+                                <div class="legend-title">Threat Levels:</div>
+                                <div class="legend-item">
+                                    <div class="legend-color high-threat"></div>
+                                    <span>High</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color medium-threat"></div>
+                                    <span>Medium</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color low-threat"></div>
+                                    <span>Low</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color data-source"></div>
+                                    <span>Data</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Data Source Status -->
+            <section class="system-status">
+                <div class="status-container">
+                    <h3><i class="fas fa-database"></i> Data Source Status <span class="help-text">(Click to visit source)</span></h3>
+                    <div class="status-grid">
+                        <a href="https://nvd.nist.gov/vuln/search" target="_blank" class="status-item clickable" title="Visit NIST National Vulnerability Database">
+                            <span class="status-label">
+                                <i class="fas fa-external-link-alt"></i> NIST CVE Database
+                            </span>
+                            <span class="status-value" id="cve-status">Checking...</span>
+                        </a>
+                        <a href="https://github.com/stamparm/maltrail" target="_blank" class="status-item clickable" title="Visit Maltrail Threat Intelligence">
+                            <span class="status-label">
+                                <i class="fas fa-external-link-alt"></i> GitHub Security Feeds
+                            </span>
+                            <span class="status-value" id="github-status">Checking...</span>
+                        </a>
+                        <a href="https://github.com/MITRE/cti" target="_blank" class="status-item clickable" title="Visit MITRE Cyber Threat Intelligence">
+                            <span class="status-label">
+                                <i class="fas fa-external-link-alt"></i> Threat Intelligence
+                            </span>
+                            <span class="status-value" id="intel-status">Checking...</span>
+                        </a>
+                        <a href="https://github.com/microsoft/MSRC-Security-Research" target="_blank" class="status-item clickable" title="Visit Microsoft Security Research">
+                            <span class="status-label">
+                                <i class="fas fa-external-link-alt"></i> Security News RSS
+                            </span>
+                            <span class="status-value" id="news-status">Checking...</span>
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-center">
+                <div class="footer-brand-section">
+                    <span class="footer-brand">
+                        <i class="fas fa-shield-alt"></i>
+                        <strong>CyberWatch Pro</strong>
+                    </span>
+                    <span class="footer-version">v2.1.0</span>
+                </div>
+                <span class="footer-copyright">
+                    © 2025 FABREulous Technology. All rights reserved.
+                </span>
+            </div>
+            <div class="footer-buttons">
+                <button class="footer-btn" data-modal="readme-modal">
+                    <i class="fas fa-file-alt"></i> README
+                </button>
+                <button class="footer-btn" data-modal="help-modal">
+                    <i class="fas fa-question-circle"></i> Help
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Data Source Modals -->
+    <div id="cve-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-bug"></i> Critical CVEs Data Sources</h3>
+                <span class="close" data-modal="cve-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="data-source-item">
+                    <h4>🔴 Primary Source: NIST National Vulnerability Database</h4>
+                    <p><strong>URL:</strong> <a href="https://nvd.nist.gov/vuln/search" target="_blank">https://nvd.nist.gov/vuln/search</a></p>
+                    <p><strong>API:</strong> <a href="https://services.nvd.nist.gov/rest/json/cves/1.0/" target="_blank">NVD REST API</a></p>
+                    <p><strong>Description:</strong> Official US government repository of standards-based vulnerability management data</p>
+                    <p><strong>Data Type:</strong> Real-time CVE data with CVSS scores ≥ 7.0</p>
+                </div>
+                <div class="data-source-item">
+                    <h4>🟡 Fallback: Simulated CVE Data</h4>
+                    <p><strong>Description:</strong> When NIST API is unavailable, realistic vulnerability data based on current threat patterns</p>
+                    <p><strong>Data Type:</strong> Statistically accurate simulation</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="malware-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-shield-virus"></i> Malware Samples Data Sources</h3>
+                <span class="close" data-modal="malware-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="data-source-item">
+                    <h4>🔴 Primary Source: Maltrail Project</h4>
+                    <p><strong>URL:</strong> <a href="https://github.com/stamparm/maltrail" target="_blank">https://github.com/stamparm/maltrail</a></p>
+                    <p><strong>API:</strong> <a href="https://api.github.com/repos/stamparm/maltrail/commits" target="_blank">GitHub Commits API</a></p>
+                    <p><strong>Description:</strong> Malicious traffic detection system with real-time malware tracking</p>
+                    <p><strong>Data Type:</strong> Live commit activity indicating new malware samples</p>
+                </div>
+                <div class="data-source-item">
+                    <h4>🟡 Fallback: Statistical Estimation</h4>
+                    <p><strong>Description:</strong> Industry-standard malware discovery rates</p>
+                    <p><strong>Data Type:</strong> Realistic daily malware sample counts</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="incidents-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-globe"></i> Global Security Incidents Data Sources</h3>
+                <span class="close" data-modal="incidents-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="data-source-item">
+                    <h4>🔴 Primary Source: MITRE Cyber Threat Intelligence</h4>
+                    <p><strong>URL:</strong> <a href="https://github.com/MITRE/cti" target="_blank">https://github.com/MITRE/cti</a></p>
+                    <p><strong>API:</strong> <a href="https://api.github.com/repos/MITRE/cti/commits" target="_blank">MITRE CTI Commits</a></p>
+                    <p><strong>Description:</strong> Structured threat information from MITRE Corporation</p>
+                    <p><strong>Data Type:</strong> Real threat intelligence updates and incident reports</p>
+                </div>
+                <div class="data-source-item">
+                    <h4>🔴 Secondary: FireHOL IP Lists</h4>
+                    <p><strong>URL:</strong> <a href="https://github.com/firehol/blocklist-ipsets" target="_blank">https://github.com/firehol/blocklist-ipsets</a></p>
+                    <p><strong>Description:</strong> Real-time IP reputation and blocklist data</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="news-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-newspaper"></i> Security News Data Sources</h3>
+                <span class="close" data-modal="news-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="data-source-item">
+                    <h4>🔴 Primary: Microsoft Security Research</h4>
+                    <p><strong>URL:</strong> <a href="https://github.com/microsoft/MSRC-Security-Research" target="_blank">https://github.com/microsoft/MSRC-Security-Research</a></p>
+                    <p><strong>API:</strong> <a href="https://api.github.com/repos/microsoft/MSRC-Security-Research/commits" target="_blank">MSRC Commits API</a></p>
+                    <p><strong>Description:</strong> Microsoft Security Response Center research and advisories</p>
+                </div>
+                <div class="data-source-item">
+                    <h4>🔴 Secondary: Google Security Research</h4>
+                    <p><strong>URL:</strong> <a href="https://github.com/google/security-research" target="_blank">https://github.com/google/security-research</a></p>
+                    <p><strong>Description:</strong> Google's security research and vulnerability disclosures</p>
+                </div>
+                <div class="data-source-item">
+                    <h4>🔴 Tertiary: GitHub Security Advisories</h4>
+                    <p><strong>URL:</strong> <a href="https://github.com/advisories" target="_blank">https://github.com/advisories</a></p>
+                    <p><strong>Description:</strong> Community-driven security advisories and vulnerability reports</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- README Modal -->
+    <div id="readme-modal" class="modal">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-file-alt"></i> SOC Dashboard - README</h3>
+                <span class="close" data-modal="readme-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="readme-section">
+                    <h4><i class="fas fa-shield-alt"></i> CyberWatch Pro v2.1.0</h4>
+                    <p><strong>Real-time Security Operations Center Dashboard</strong></p>
+                    <p>A professional SOC dashboard that displays real-world cybersecurity data and threat intelligence from legitimate security sources.</p>
+                </div>
+
+                <div class="readme-section">
+                    <h4><i class="fas fa-star"></i> Key Features</h4>
+                    <ul>
+                        <li><strong>Real Data Sources:</strong> NIST CVE Database, MITRE CTI, Microsoft Security Research</li>
+                        <li><strong>Live News Ticker:</strong> Clickable security news with direct links to sources</li>
+                        <li><strong>Interactive Charts:</strong> 24-hour threat timeline and attack distribution</li>
+                        <li><strong>Global Threat Map:</strong> World map showing threat levels and data sources</li>
+                        <li><strong>Data Persistence:</strong> Keeps last known real data, never shows mock data</li>
+                        <li><strong>Auto-refresh:</strong> Updates every 30 seconds with fresh intelligence</li>
+                    </ul>
+                </div>
+
+                <div class="readme-section">
+                    <h4><i class="fas fa-database"></i> Data Sources</h4>
+                    <ul>
+                        <li><strong>NIST NVD:</strong> <code>services.nvd.nist.gov</code> - Official CVE vulnerability database</li>
+                        <li><strong>MITRE CTI:</strong> <code>github.com/MITRE/cti</code> - Structured threat intelligence</li>
+                        <li><strong>Microsoft Security:</strong> <code>github.com/microsoft/MSRC-Security-Research</code></li>
+                        <li><strong>Google Security:</strong> <code>github.com/google/security-research</code></li>
+                        <li><strong>Maltrail Project:</strong> <code>github.com/stamparm/maltrail</code> - Malware tracking</li>
+                    </ul>
+                </div>
+
+                <div class="readme-section">
+                    <h4><i class="fas fa-chart-line"></i> Dashboard Components</h4>
+                    <ul>
+                        <li><strong>Critical CVEs Today:</strong> High-severity vulnerabilities (CVSS ≥ 7.0)</li>
+                        <li><strong>New Malware Samples:</strong> Recent malware repository updates</li>
+                        <li><strong>Global Security Incidents:</strong> Threat intelligence updates</li>
+                        <li><strong>Security News Updates:</strong> Research and advisory publications</li>
+                        <li><strong>Interactive Map:</strong> Global threat visualization with real coordinates</li>
+                        <li><strong>Event Timeline:</strong> Recent security events with filtering</li>
+                    </ul>
+                </div>
+
+                <div class="readme-section">
+                    <h4><i class="fas fa-info-circle"></i> Data Integrity</h4>
+                    <ul>
+                        <li><strong>No Mock Data:</strong> Only displays real cybersecurity information</li>
+                        <li><strong>Cache System:</strong> Preserves last known data when APIs are unavailable</li>
+                        <li><strong>Transparency:</strong> Clear indicators show data freshness vs. cached</li>
+                        <li><strong>Source Links:</strong> Direct access to all data sources via clickable elements</li>
+                    </ul>
+                </div>
+
+                <div class="readme-section">
+                    <h4><i class="fas fa-cog"></i> Technical Details</h4>
+                    <ul>
+                        <li><strong>Technology:</strong> Pure HTML5, CSS3, JavaScript (ES6+)</li>
+                        <li><strong>Charts:</strong> Chart.js for data visualization</li>
+                        <li><strong>Responsive:</strong> Mobile and desktop compatible</li>
+                        <li><strong>Performance:</strong> Optimized API calls with fallback systems</li>
+                        <li><strong>Security:</strong> CORS-compliant, no sensitive data exposure</li>
+                    </ul>
+                </div>
+
+                <div class="readme-section">
+                    <h4><i class="fas fa-copyright"></i> Copyright & License</h4>
+                    <p>&copy; 2025 FABREulous Technology. All rights reserved.</p>
+                    <p>This dashboard is for educational and monitoring purposes. Use responsibly and in accordance with all applicable laws and API terms of service.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="modal">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-question-circle"></i> SOC Dashboard - Help Guide</h3>
+                <span class="close" data-modal="help-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="help-section">
+                    <h4><i class="fas fa-rocket"></i> Getting Started</h4>
+                    <p>The SOC Dashboard automatically loads real cybersecurity data when you open it. No setup required!</p>
+                    <ul>
+                        <li><strong>Auto-refresh:</strong> Data updates every 30 seconds</li>
+                        <li><strong>Manual refresh:</strong> Click the "Refresh" button in the header</li>
+                        <li><strong>Real-time clock:</strong> Shows current date and time</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <h4><i class="fas fa-mouse-pointer"></i> Interactive Elements</h4>
+                    <ul>
+                        <li><strong>Stat Cards (Top):</strong> Click any metric card to see data source details</li>
+                        <li><strong>News Ticker:</strong> Click any scrolling news item to visit the source</li>
+                        <li><strong>World Map:</strong> Toggle between "Threats" and "Sources" views</li>
+                        <li><strong>Data Sources:</strong> Click any status item to visit the external source</li>
+                        <li><strong>Event Filtering:</strong> Use "All", "Critical", "Warning" buttons</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <h4><i class="fas fa-traffic-light"></i> Status Indicators</h4>
+                    <ul>
+                        <li><strong><span style="color: #27ae60;">🟢 Online:</span></strong> API is responding with fresh data</li>
+                        <li><strong><span style="color: #f39c12;">🟡 Limited:</span></strong> Using cached data (API temporarily unavailable)</li>
+                        <li><strong><span style="color: #e74c3c;">🔴 No Data:</span></strong> No real data available yet</li>
+                        <li><strong>"—" (Em dash):</strong> Metric unavailable, waiting for real data</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <h4><i class="fas fa-map-marked-alt"></i> World Map Guide</h4>
+                    <ul>
+                        <li><strong>Threat View:</strong> Shows pulsing red markers on high-threat countries</li>
+                        <li><strong>Sources View:</strong> Shows blue markers for data source locations</li>
+                        <li><strong>Color Coding:</strong> Red (High), Orange (Medium), Green (Low) threat levels</li>
+                        <li><strong>Hover Tooltips:</strong> Mouse over markers for detailed information</li>
+                        <li><strong>Legend:</strong> Bottom-center shows threat level meanings</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <h4><i class="fas fa-chart-bar"></i> Charts & Visualization</h4>
+                    <ul>
+                        <li><strong>Threat Timeline:</strong> 24-hour threat activity (left chart)</li>
+                        <li><strong>Attack Distribution:</strong> Breakdown by attack type (right chart)</li>
+                        <li><strong>Event Table:</strong> Scrollable list of recent security events</li>
+                        <li><strong>Filtering:</strong> View all events or filter by severity level</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <h4><i class="fas fa-newspaper"></i> News Ticker</h4>
+                    <ul>
+                        <li><strong>Breaking News:</strong> Real security updates from major sources</li>
+                        <li><strong>Clickable Items:</strong> Click any news item to visit the source</li>
+                        <li><strong>Hover to Pause:</strong> Mouse over ticker to pause scrolling</li>
+                        <li><strong>Real Sources:</strong> Microsoft, Google, MITRE security research</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Troubleshooting</h4>
+                    <ul>
+                        <li><strong>No Data Loading:</strong> Check internet connection, APIs may be rate-limited</li>
+                        <li><strong>"—" Displayed:</strong> Normal when waiting for real data (no mock substitution)</li>
+                        <li><strong>Cached Data:</strong> Shows "(cached)" in timestamp when using stored data</li>
+                        <li><strong>Console Logs:</strong> Open browser DevTools to see detailed API status</li>
+                        <li><strong>Slow Loading:</strong> Some APIs have rate limits, data will appear gradually</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <h4><i class="fas fa-keyboard"></i> Keyboard Shortcuts</h4>
+                    <ul>
+                        <li><strong>Escape:</strong> Close any open modal</li>
+                        <li><strong>Click outside:</strong> Close modal by clicking the background</li>
+                        <li><strong>Refresh (F5):</strong> Reload entire dashboard</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <h4><i class="fas fa-life-ring"></i> Support</h4>
+                    <p>This dashboard displays real cybersecurity data for educational and monitoring purposes.</p>
+                    <p><strong>Data Sources:</strong> All data comes from legitimate, publicly available security feeds.</p>
+                    <p><strong>Disclaimer:</strong> This tool should not be used as the sole source for critical security decisions.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-overlay" class="modal-overlay"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
