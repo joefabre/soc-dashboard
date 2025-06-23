@@ -437,6 +437,42 @@ td {
     padding: 2rem;
 }
 
+/* Clickable Event Rows */
+.clickable-row {
+    transition: all 0.3s ease;
+}
+
+.clickable-row:hover {
+    background: rgba(52, 152, 219, 0.1) !important;
+    transform: translateX(5px);
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.2);
+}
+
+.event-link-icon {
+    margin-left: 0.5rem;
+    color: #3498db;
+    font-size: 0.8rem;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.clickable-row:hover .event-link-icon {
+    opacity: 1;
+    animation: bounce 0.5s ease;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-3px);
+    }
+    60% {
+        transform: translateY(-2px);
+    }
+}
+
 /* World Map */
 .world-map-container {
     position: relative;
@@ -1188,6 +1224,118 @@ td {
     padding: 0.1rem 0.3rem;
     border-radius: 3px;
     font-size: 0.9rem;
+}
+
+/* Chart Data Modal Styles */
+.chart-data-summary {
+    background: rgba(52, 73, 94, 0.3);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #3498db;
+}
+
+.chart-data-summary h4 {
+    color: #3498db;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.chart-events-list {
+    margin-bottom: 1.5rem;
+}
+
+.chart-events-list h4 {
+    color: #e74c3c;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.event-item {
+    background: rgba(52, 73, 94, 0.2);
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 0.8rem;
+    border-left: 3px solid #95a5a6;
+}
+
+.event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.event-source {
+    background: rgba(52, 152, 219, 0.2);
+    color: #3498db;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.event-description {
+    color: #bdc3c7;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.event-link {
+    color: #3498db;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.event-link:hover {
+    color: #5dade2;
+    text-decoration: underline;
+}
+
+.data-sources-list h4 {
+    color: #27ae60;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.source-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem;
+    background: rgba(39, 174, 96, 0.1);
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    border-left: 3px solid #27ae60;
+}
+
+.source-link {
+    color: #27ae60;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.source-link:hover {
+    color: #2ecc71;
+    text-decoration: underline;
+}
+
+.more-events {
+    color: #95a5a6;
+    font-style: italic;
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.no-events {
+    color: #95a5a6;
+    text-align: center;
+    font-style: italic;
+    padding: 2rem;
 }
 
 /* Responsive Footer */
